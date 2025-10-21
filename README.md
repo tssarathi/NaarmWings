@@ -8,10 +8,10 @@ The app lets users explore where different bird species have been spotted in Mel
 
 ## Our Team
 
-- **Sarathi Thirumalai Soundararajan** - sthirumalais@student.unimelb.edu.au
-- **Eby Thomas** - thomas.e2@student.unimelb.edu.au  
-- **Harish Kannan** - harish.kannan@student.unimelb.edu.au
-- **Mahek Jain** - mahek.jain@student.unimelb.edu.au
+- **Sarathi Thirumalai Soundararajan** - [sthirumalais@student.unimelb.edu.au](mailto:sthirumalais@student.unimelb.edu.au)
+- **Eby Thomas** - [thomas.e2@student.unimelb.edu.au](mailto:thomas.e2@student.unimelb.edu.au)
+- **Harish Kannan** - [harish.kannan@student.unimelb.edu.au](mailto:harish.kannan@student.unimelb.edu.au)
+- **Mahek Jain** - [mahek.jain@student.unimelb.edu.au](mailto:mahek.jain@student.unimelb.edu.au)
 
 ## Data We Used
 

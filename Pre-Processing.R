@@ -18,3 +18,8 @@ sightings_data <- sightings_data %>% select(all_of(columns))
 
 # Set missing individualCount to 1 (assume single bird sighting)
 sightings_data$individualCount[is.na(sightings_data$individualCount)] <- 1
+
+# Save the processed data
+write.csv(sightings_data,
+          "Data/Pre - Processed Data/sightings_data.csv",
+          row.names = FALSE)

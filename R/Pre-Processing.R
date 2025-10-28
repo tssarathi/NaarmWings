@@ -153,7 +153,7 @@ sightings_data <- merge(
 )
 
 sightings_data$markerPath <- file.path(
-  "Data/Icons",
+  "Data/Markers",
   paste0(sightings_data$order, ".svg")
 )
 

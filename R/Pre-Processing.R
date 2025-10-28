@@ -8,17 +8,20 @@ wikipedia_data <- read.csv(
   "Data/Description Data/bird_wikipedia_data.csv"
 )
 
-# Define column groups
-species <- c("scientificName", "species", "vernacularName", "individualCount")
-taxonomy <- c("family", "genus", "order")
-geographic <- c("decimalLatitude", "decimalLongitude")
-temporal <- c("eventDate")
-
-# Combine all required columns
-columns <- c(species, taxonomy, geographic, temporal)
-
 # Select only the required columns
-sightings_data <- sightings_data %>% select(all_of(columns))
+sightings_data <- sightings_data %>%
+  select(
+    scientificName,
+    species,
+    vernacularName,
+    individualCount,
+    family,
+    genus,
+    order,
+    decimalLatitude,
+    decimalLongitude,
+    eventDate
+  )
 
 # Clean data
 sightings_data$individualCount[is.na(sightings_data$individualCount)] <- 1
@@ -36,7 +39,11 @@ sightings_data <- sightings_data %>%
     vernacularName = ifelse(
       grepl("Porzana", scientificName, ignore.case = TRUE),
       "Australian Spotted Crake",
-      vernacularName
+      ifelse(
+        grepl("Coturnix ypsilophora", scientificName, ignore.case = TRUE),
+        "Brown Quail",
+        vernacularName
+      )
     )
   ) %>%
   select(-scientificName)
@@ -53,7 +60,30 @@ image_dirs <- list.dirs(
 )
 image_mapping <- data.frame(
   scientificName = gsub("_", " ", image_dirs),
-  images = file.path("Data/Image Data", image_dirs),
+  imagePath = file.path("Data/Image Data", image_dirs),
+  stringsAsFactors = FALSE
+)
+
+# Add audio paths
+audio_dirs <- list.dirs(
+  "Data/Audio Data",
+  full.names = FALSE,
+  recursive = FALSE
+)
+audio_dirs <- audio_dirs[audio_dirs != "scientificName"]
+audio_mapping <- data.frame(
+  scientificName = gsub("_", " ", audio_dirs),
+  audioPath = sapply(audio_dirs, function(d) {
+    mp3_files <- list.files(
+      file.path("Data/Audio Data", d),
+      "*.mp3",
+      full.names = FALSE
+    )
+    file.path("Data/Audio Data", d, mp3_files[1])
+  }),
+  creditsPath = sapply(audio_dirs, function(d) {
+    file.path("Data/Audio Data", d, "single_recording.json")
+  }),
   stringsAsFactors = FALSE
 )
 
@@ -63,7 +93,12 @@ wikipedia_mapping <- wikipedia_data %>%
 
 sightings_data <- sightings_data %>%
   left_join(image_mapping, by = "scientificName") %>%
-  left_join(wikipedia_mapping, by = "scientificName")
+  left_join(audio_mapping, by = "scientificName") %>%
+  left_join(wikipedia_mapping, by = "scientificName") %>%
+  mutate(
+    audioPath = coalesce(audioPath, "No Audio Data"),
+    creditsPath = coalesce(creditsPath, "No Audio Data")
+  )
 
 # Clean Unicode characters
 clean_unicode <- function(text) {
@@ -107,7 +142,7 @@ categories_map <- function(n) {
 }
 categories <- data.frame(
   scientificName = names(frequency),
-  frequency_category = categories_map(frequency),
+  rarityCategory = categories_map(frequency),
   stringsAsFactors = FALSE
 )
 sightings_data <- merge(
@@ -117,13 +152,64 @@ sightings_data <- merge(
   all.x = TRUE
 )
 
-sightings_data$thumbnail <- file.path(
+sightings_data$markerPath <- file.path(
   "Data/Icons",
   paste0(sightings_data$order, ".svg")
 )
+
+# Merge duplicate rows by summing individual counts and rename columns
+sightings_data <- sightings_data %>%
+  group_by(
+    scientificName,
+    vernacularName,
+    family,
+    genus,
+    order,
+    decimalLatitude,
+    decimalLongitude,
+    eventDate,
+    imagePath,
+    audioPath,
+    creditsPath,
+    description,
+    rarityCategory,
+    markerPath
+  ) %>%
+  summarise(count = sum(individualCount), .groups = "drop") %>%
+  rename(
+    commonName = vernacularName,
+    latitude = decimalLatitude,
+    longitude = decimalLongitude,
+    date = eventDate
+  ) %>%
+  select(
+    # Identification
+    scientificName,
+    commonName,
+    # Taxonomy
+    order,
+    family,
+    genus,
+    # Geographic
+    latitude,
+    longitude,
+    # Temporal
+    date,
+    # Observational
+    count,
+    rarityCategory,
+    # Media and content
+    description,
+    imagePath,
+    markerPath,
+    audioPath,
+    creditsPath
+  )
 
 write.csv(
   sightings_data,
   "Data/Pre - Processed Data/data.csv",
   row.names = FALSE
 )
+
+cat("Pre - Processing Done\n")

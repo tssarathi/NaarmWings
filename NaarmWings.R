@@ -9,4 +9,8 @@ source("R/ui.R")
 source("R/server.R")
 
 # Run the app
-shinyApp(ui = ui, server = server)
+# Create app object
+app <- shinyApp(ui = ui, server = server)
+
+# Launch in external browser
+runApp(app, launch.browser = TRUE)

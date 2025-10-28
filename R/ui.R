@@ -122,9 +122,9 @@ filter_panel <- tabPanel(
     ),
     sliderInput(
       inputId = "filter_year_range",
-      min = 1998,
+      min = 2015,
       max = 2019,
-      value = c(1998, 2019),
+      value = c(2015, 2019),
       step = 1,
       sep = "",
       label = NULL
@@ -216,7 +216,7 @@ intro_panel <- tabPanel(
       class = "page",
       tags$img(src = "assets/slide1.svg"),
       tags$p(
-        "Explore bird observations across Melbourne (Naarm) from 1998 to 2019."
+        "Explore bird observations across Melbourne (Naarm) from 2015 to 2019."
       )
     ),
     tags$div(

@@ -5,6 +5,7 @@ library(dplyr)
 library(leaflet)
 library(htmltools)
 library(glue)
+library(base64enc)
 
 # Map definition---------------------------------------------------------------
 
@@ -37,6 +38,120 @@ map_symbol <- function(order = "default") {
     TRUE ~ "assets/marker.svg" # Use generic marker as fallback
   )
   return(img)
+}
+
+#' Translate a web-accessible asset path to its filesystem counterpart
+#' @param web_path character path used in the Shiny app
+#' @return character path on disk
+resolve_asset_path <- function(web_path) {
+  if (startsWith(web_path, "bird-data/")) {
+    file.path("Data", sub("^bird-data/", "", web_path))
+  } else if (startsWith(web_path, "assets/")) {
+    file.path("www", sub("^assets/", "", web_path))
+  } else {
+    web_path
+  }
+}
+
+#' Retrieve an SVG as a data URI, with simple in-memory caching
+#' @param web_path character path used in the app
+#' @return data URI string or NULL if missing
+get_svg_data_uri <- local({
+  cache <- new.env(parent = emptyenv())
+  function(web_path) {
+    if (!exists(web_path, envir = cache, inherits = FALSE)) {
+      file_path <- resolve_asset_path(web_path)
+      if (!file.exists(file_path)) {
+        cache[[web_path]] <- NULL
+      } else {
+        svg_text <- paste(readLines(file_path, warn = FALSE), collapse = "\n")
+        cache[[web_path]] <- base64enc::dataURI(
+          data = charToRaw(svg_text),
+          mime = "image/svg+xml"
+        )
+      }
+    }
+    cache[[web_path]]
+  }
+})
+
+#' Gets the rarity marker background path for a bird sighting
+#' @param rarity The rarity label (e.g., Common, Rare)
+#' @return character path to marker background
+rarity_symbol <- function(rarity = "default") {
+  case_when(
+    rarity == "Common" ~ "bird-data/Markers/markerGreen.svg",
+    rarity == "Fairly Common" ~ "bird-data/Markers/markerYellow.svg",
+    rarity == "Uncommon" ~ "bird-data/Markers/markerOrange.svg",
+    rarity == "Rare" ~ "bird-data/Markers/markerRed.svg",
+    rarity == "Vagrant" ~ "bird-data/Markers/markerViolet.svg",
+    TRUE ~ "assets/marker.svg"
+  )
+}
+
+#' Create leaflet icons that overlay order symbols on rarity backgrounds
+#' @param orders Character vector of taxonomic orders
+#' @param rarities Character vector of rarity categories
+#' @return leaflet icon set
+compose_marker_icons <- function(orders, rarities) {
+  if (length(orders) == 0) {
+    return(icons(iconUrl = character(0)))
+  }
+
+  clean_orders <- ifelse(is.na(orders), "default", orders)
+  clean_rarities <- ifelse(is.na(rarities), "default", rarities)
+
+  order_paths <- vapply(clean_orders, map_symbol, FUN.VALUE = character(1))
+  rarity_paths <- vapply(clean_rarities, rarity_symbol, FUN.VALUE = character(1))
+
+  composite_uris <- mapply(
+    FUN = function(order_path, rarity_path) {
+      order_uri <- get_svg_data_uri(order_path)
+      rarity_uri <- get_svg_data_uri(rarity_path)
+
+      if (is.null(order_uri) || is.null(rarity_uri)) {
+        fallback_uri <- rarity_uri
+        if (is.null(fallback_uri)) {
+          fallback_uri <- order_uri
+        }
+        if (is.null(fallback_uri)) {
+          fallback_uri <- get_svg_data_uri("assets/marker.svg")
+        }
+        if (is.null(fallback_uri)) {
+          return("")
+        }
+        return(fallback_uri)
+      }
+
+      composite_svg <- paste0(
+        "<svg xmlns='http://www.w3.org/2000/svg' ",
+        "xmlns:xlink='http://www.w3.org/1999/xlink' width='24' height='24' viewBox='0 0 24 24'>",
+        "<image href='", rarity_uri, "' xlink:href='", rarity_uri,
+        "' width='24' height='24' preserveAspectRatio='xMidYMid meet'/>",
+        "<image href='", order_uri, "' xlink:href='", order_uri,
+        "' x='4' y='3' width='16' height='16' preserveAspectRatio='xMidYMid meet'/>",
+        "</svg>"
+      )
+
+      base64enc::dataURI(
+        data = charToRaw(composite_svg),
+        mime = "image/svg+xml"
+      )
+    },
+    order_path = order_paths,
+    rarity_path = rarity_paths,
+    SIMPLIFY = TRUE,
+    USE.NAMES = FALSE
+  )
+
+  icons(
+    iconUrl = composite_uris,
+    iconWidth = 24,
+    iconHeight = 24,
+    iconAnchorX = 12,
+    iconAnchorY = 24,
+    className = "bird-marker-icon"
+  )
 }
 
 #' Get radar circle information for visualization
@@ -110,16 +225,15 @@ map_renderer <- function(map_data, state) {
     "pk.eyJ1IjoiaGs3NDAyIiwiYSI6ImNtaGJkM3BxdTB3bGQyaXB5czY2ZW1zMG0ifQ",
     ".yD4Rsrn1vPqxXk2AFgjOZA"
   )
-  # Get icon paths for each bird based on taxonomic order
-  marker_orders <- ifelse(is.na(map_data$order), "default", map_data$order)
-  icon_paths <- sapply(marker_orders, map_symbol)
 
-  # Create icons using the icons() function for proper vectorization
-  marker_icons <- icons(
-    iconUrl = icon_paths,
-    iconWidth = 24,
-    iconHeight = 24
-  )
+  # Get icon paths for each bird based on taxonomic order
+  marker_orders <- map_data$order
+  marker_rarities <- if ("rarityCategory" %in% names(map_data)) {
+    map_data$rarityCategory
+  } else {
+    rep(NA_character_, nrow(map_data))
+  }
+  marker_icons <- compose_marker_icons(marker_orders, marker_rarities)
 
   map <- map_data %>%
     # Initialise leaflet

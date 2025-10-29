@@ -285,15 +285,14 @@ server <- function(input, output, session) {
       return()
     }
 
-    # Get icon paths for each bird based on taxonomic order
-    marker_orders <- ifelse(is.na(data$order), "default", data$order)
-    icon_paths <- sapply(marker_orders, map_symbol)
-
-    # Create icons using the icons() function for proper vectorization
-    marker_icons <- icons(
-      iconUrl = icon_paths,
-      iconWidth = 24,
-      iconHeight = 24
+    # Build composite icons that overlay order imagery on rarity markers
+    marker_icons <- compose_marker_icons(
+      orders = data$order,
+      rarities = if ("rarityCategory" %in% names(data)) {
+        data$rarityCategory
+      } else {
+        rep(NA_character_, nrow(data))
+      }
     )
 
     leafletProxy("leaflet_map", data = data) %>%
@@ -479,7 +478,7 @@ server <- function(input, output, session) {
       modal_content <- do.call(tags$div, modal_children)
 
       showModal(modalDialog(
-        title = selected_bird$commonName,
+        title = tags$div(style = "text-align: center;", selected_bird$commonName),
         modal_content,
         easyClose = TRUE,
         footer = modalButton("Close")

@@ -5,6 +5,7 @@
 source("R/libraries.R")
 
 # Source all module files
+source("R/tableau-in-shiny-v1.2.R")
 source("R/data.R")
 source("R/map.R")
 source("R/ui.R")

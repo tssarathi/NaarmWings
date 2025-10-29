@@ -161,6 +161,7 @@ headers <- tags$head(
 
         if (window.jQuery) {
           window.jQuery(document).on(\"shown.bs.modal\", \".modal\", function() {
+            try { window.dispatchEvent(new Event(\"resize\")); } catch (e) {}
             var blocks = this.querySelectorAll(\".mermaid:not([data-processed])\");
             if (!blocks.length) {
               return;
@@ -186,6 +187,40 @@ headers <- tags$head(
   tags$script(
     src = "assets/shiny_app.js"
   )
+  ,
+  # helper to update Tableau viz year filter from Shiny
+  tags$script(HTML('
+    window.updateTableauYearRange = function(id, minYear, maxYear) {
+      let attempts = 25;
+      const minDate = new Date(minYear, 0, 1);
+      const maxDate = new Date(maxYear, 11, 31);
+      const tick = async () => {
+        try {
+          const viz = document.getElementById(id);
+          if (!viz || !viz.workbook) {
+            if (attempts-- > 0) return void setTimeout(tick, 160);
+            return;
+          }
+          const applyTo = async (sheet) => {
+            if (!sheet) return;
+            if (typeof sheet.applyRangeFilterAsync === "function") {
+              await sheet.applyRangeFilterAsync("Date", { min: minDate, max: maxDate });
+            }
+            if (sheet.worksheets && sheet.worksheets.length) {
+              for (const ws of sheet.worksheets) {
+                try { await ws.applyRangeFilterAsync("Date", { min: minDate, max: maxDate }); } catch (e) {}
+              }
+            }
+          };
+          await applyTo(viz.workbook.activeSheet);
+        } catch (e) {
+          if (attempts-- > 0) return void setTimeout(tick, 160);
+          console.error("updateTableauYearRange error", e);
+        }
+      };
+      tick();
+    };
+  '))
 )
 
 # Filter Panel-----------------------------------------------------------------
@@ -420,6 +455,7 @@ loading_panel <- tabPanel(
 
 ui <- tagList(
   headers,
+  setUpTableauInShiny(),
   navbarPage(
     title = "NaarmWings",
     map_panel,

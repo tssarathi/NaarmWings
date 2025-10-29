@@ -133,6 +133,15 @@ server <- function(input, output, session) {
   # Filter by year range
   observeEvent(input$filter_year_range, {
     state$filter_year_range <- input$filter_year_range
+    # keep Tableau viz (if present) synced with year range
+    try({
+      shinyjs::runjs(sprintf(
+        'window.updateTableauYearRange("%s", %d, %d);',
+        "tableauSightingsByYear",
+        as.integer(input$filter_year_range[1]),
+        as.integer(input$filter_year_range[2])
+      ))
+    }, silent = TRUE)
   })
 
   # Filter by radius
@@ -488,6 +497,28 @@ server <- function(input, output, session) {
         )
       }
 
+      # Tableau Sightings by Year (interactive)
+      tableau_id <- "tableauSightingsByYear"
+      tableau_url <- "https://public.tableau.com/shared/PDNK3TPM3?:display_count=n&:origin=viz_share_link"
+
+      modal_children <- c(
+        modal_children,
+        list(
+          tags$hr(),
+          tags$h4("Sightings by Year"),
+          tags$div(
+            style = "width: 100%; height: 300px; overflow: hidden;",
+            tableauPublicViz(
+              id = tableau_id,
+              url = tableau_url,
+              height = "300px",
+              style = "width: 100%; height: 300px; display: block;",
+              toolbar = "hidden"
+            )
+          )
+        )
+      )
+
       modal_content <- do.call(tags$div, modal_children)
 
       showModal(modalDialog(
@@ -504,6 +535,16 @@ server <- function(input, output, session) {
           definition = mermaid_diagram
         )
       )
+
+      # Sync tableau viz to current year range after modal opens
+      try({
+        shinyjs::runjs(sprintf(
+          'setTimeout(() => window.updateTableauYearRange("%s", %d, %d), 300);',
+          tableau_id,
+          as.integer(state$filter_year_range[1]),
+          as.integer(state$filter_year_range[2])
+        ))
+      }, silent = TRUE)
     }
   })
 }

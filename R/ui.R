@@ -220,6 +220,39 @@ headers <- tags$head(
       };
       tick();
     };
+
+    window.updateTableauScientificName = function(id, scientificName) {
+      let attempts = 25;
+      const tick = async () => {
+        try {
+          const viz = document.getElementById(id);
+          if (!viz || !viz.workbook) {
+            if (attempts-- > 0) return void setTimeout(tick, 160);
+            return;
+          }
+          const applyTo = async (sheet) => {
+            if (!sheet) return;
+            if (typeof sheet.applyFilterAsync === "function") {
+              await sheet.applyFilterAsync("ScientificName", [scientificName], "replace");
+            }
+            if (sheet.worksheets && sheet.worksheets.length) {
+              for (const ws of sheet.worksheets) {
+                try {
+                  await ws.applyFilterAsync("ScientificName", [scientificName], "replace");
+                } catch (e) {
+                  console.log("Could not apply filter to worksheet", e);
+                }
+              }
+            }
+          };
+          await applyTo(viz.workbook.activeSheet);
+        } catch (e) {
+          if (attempts-- > 0) return void setTimeout(tick, 160);
+          console.error("updateTableauScientificName error", e);
+        }
+      };
+      tick();
+    };
   '))
 )
 

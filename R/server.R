@@ -520,8 +520,8 @@ server <- function(input, output, session) {
       )
 
       # Tableau Choropleth Map (interactive)
-      tableau_choropleth_id <- "tableauChoropleth"
-      tableau_choropleth_url <- "https://public.tableau.com/shared/QG9DBXDSF?:display_count=n&:origin=viz_share_link"
+      tableau_choropleth_id <- paste0("tableauChoropleth_", gsub("[^A-Za-z0-9]", "", selected_bird$scientificName))
+      tableau_choropleth_url <- "https://public.tableau.com/views/Choropleth_birds/choropleth_birds?:language=en-US&:sid=&:redirect=auth&:display_count=n&:origin=viz_share_link"
 
       modal_children <- c(
         modal_children,
@@ -573,6 +573,15 @@ server <- function(input, output, session) {
         shinyjs::runjs(sprintf(
           'setTimeout(() => { if (window.observeTableauEvents) window.observeTableauEvents("%s"); }, 500);',
           tableau_choropleth_id
+        ))
+      }, silent = TRUE)
+
+      # Apply scientific name filter to the choropleth
+      try({
+        shinyjs::runjs(sprintf(
+          'setTimeout(() => window.updateTableauScientificName("%s", "%s"), 700);',
+          tableau_choropleth_id,
+          selected_bird$scientificName
         ))
       }, silent = TRUE)
     }

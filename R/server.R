@@ -146,7 +146,7 @@ server <- function(input, output, session) {
 
   # Filter by radius
   observeEvent(input$filter_radius, {
-    state$filter_radius <- input$filter_radius
+    state$filter_radius <- c(0, input$filter_radius)
   })
 
   #' Master data --------------------------------------------------------------
@@ -519,6 +519,28 @@ server <- function(input, output, session) {
         )
       )
 
+      # Tableau Choropleth Map (interactive)
+      tableau_choropleth_id <- "tableauChoropleth"
+      tableau_choropleth_url <- "https://public.tableau.com/shared/QG9DBXDSF?:display_count=n&:origin=viz_share_link"
+
+      modal_children <- c(
+        modal_children,
+        list(
+          tags$hr(),
+          tags$h4("Bird Sightings by Suburb"),
+          tags$div(
+            style = "width: 100%; height: 400px; overflow: hidden;",
+            tableauPublicViz(
+              id = tableau_choropleth_id,
+              url = tableau_choropleth_url,
+              height = "400px",
+              style = "width: 100%; height: 400px; display: block;",
+              toolbar = "hidden"
+            )
+          )
+        )
+      )
+
       modal_content <- do.call(tags$div, modal_children)
 
       showModal(modalDialog(
@@ -545,6 +567,111 @@ server <- function(input, output, session) {
           as.integer(state$filter_year_range[2])
         ))
       }, silent = TRUE)
+
+      # Set up event listeners for the choropleth viz (dynamically added to modal)
+      try({
+        shinyjs::runjs(sprintf(
+          'setTimeout(() => { if (window.observeTableauEvents) window.observeTableauEvents("%s"); }, 500);',
+          tableau_choropleth_id
+        ))
+      }, silent = TRUE)
     }
+  })
+
+  # Handle suburb selection from choropleth map
+  observeEvent(input$tableauChoropleth_mark_selection_changed, {
+    print("Suburb clicked on choropleth map")
+
+    tryCatch({
+      # Get the selected mark data
+      selected_data <- input$tableauChoropleth_mark_selection_changed
+
+      if (is.null(selected_data)) {
+        return(NULL)
+      }
+
+      selected_df <- tryCatch(
+        as.data.frame(selected_data, stringsAsFactors = FALSE),
+        error = function(e) NULL
+      )
+
+      if (is.null(selected_df) || nrow(selected_df) == 0) {
+        print("Warning: No suburb data returned from Tableau")
+        return(NULL)
+      }
+
+      # DEBUG: Print available field names
+      print("Available fields from Tableau:")
+      print(names(selected_df))
+      print("First row of data:")
+      print(selected_df[1, ])
+
+      required_fields <- c("ATTR(Centroid Latitude)", "ATTR(Centroid Longitude)", "Loc Name")
+      missing_fields <- setdiff(required_fields, names(selected_df))
+      if (length(missing_fields) > 0) {
+        print(paste("Warning: Missing fields in selected suburb data:", paste(missing_fields, collapse = ", ")))
+        return(NULL)
+      }
+
+      # Extract coordinates and suburb name from first selected mark
+      # Note: Tableau wraps aggregated fields with ATTR()
+      suburb_lat <- suppressWarnings(as.numeric(selected_df[["ATTR(Centroid Latitude)"]][1]))
+      suburb_lon <- suppressWarnings(as.numeric(selected_df[["ATTR(Centroid Longitude)"]][1]))
+      suburb_name <- selected_df[["Loc Name"]][1]
+
+      if (length(suburb_lat) != 1 || length(suburb_lon) != 1 || is.na(suburb_lat) || is.na(suburb_lon)) {
+        print("Warning: Invalid coordinates in selected suburb data")
+        return(NULL)
+      }
+
+      if (length(suburb_name) == 0 || is.na(suburb_name)) {
+        suburb_name <- ""
+      } else {
+        suburb_name <- as.character(suburb_name)
+      }
+
+      print(paste("Navigating to suburb:", suburb_name, "at", suburb_lat, suburb_lon))
+
+      # Update map center to suburb location
+      state$center_lat <- suburb_lat
+      state$center_lng <- suburb_lon
+      state$zoom_level <- 14
+
+      # Update search bar to show suburb name
+      if (nzchar(suburb_name)) {
+        updateTextInput(session, "search-input", value = suburb_name)
+
+        coords_js <- jsonlite::toJSON(
+          list(
+            lat = suburb_lat,
+            lon = suburb_lon
+          ),
+          auto_unbox = TRUE
+        )
+
+        suburb_js <- jsonlite::toJSON(suburb_name, auto_unbox = TRUE)
+
+        shinyjs::runjs(sprintf(
+          "(function() {
+            const input = document.getElementById('search-input');
+            if (!input) { return; }
+            const coords = %s;
+            try {
+              input.value = %s;
+              input.dispatchEvent(new CustomEvent('set:loc', { detail: coords }));
+            } catch (err) {
+              console.error('Failed to dispatch set:loc event from Tableau selection', err);
+            }
+          })();",
+          coords_js,
+          suburb_js
+        ))
+      }
+
+      # Close the modal dialog
+      removeModal()
+    }, error = function(e) {
+      print(paste("Error handling suburb selection:", e$message))
+    })
   })
 }

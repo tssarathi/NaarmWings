@@ -89,7 +89,7 @@ rarity_symbol <- function(rarity = "default") {
   )
 }
 
-#' Create leaflet icons that overlay order symbols on rarity backgrounds
+#' Create leaflet icons using pre-generated overlay icons
 #' @param orders Character vector of taxonomic orders
 #' @param rarities Character vector of rarity categories
 #' @return leaflet icon set
@@ -101,51 +101,40 @@ compose_marker_icons <- function(orders, rarities) {
   clean_orders <- ifelse(is.na(orders), "default", orders)
   clean_rarities <- ifelse(is.na(rarities), "default", rarities)
 
-  order_paths <- vapply(clean_orders, map_symbol, FUN.VALUE = character(1))
-  rarity_paths <- vapply(clean_rarities, rarity_symbol, FUN.VALUE = character(1))
-
-  composite_uris <- mapply(
-    FUN = function(order_path, rarity_path) {
-      order_uri <- get_svg_data_uri(order_path)
-      rarity_uri <- get_svg_data_uri(rarity_path)
-
-      if (is.null(order_uri) || is.null(rarity_uri)) {
-        fallback_uri <- rarity_uri
-        if (is.null(fallback_uri)) {
-          fallback_uri <- order_uri
-        }
-        if (is.null(fallback_uri)) {
-          fallback_uri <- get_svg_data_uri("assets/marker.svg")
-        }
-        if (is.null(fallback_uri)) {
-          return("")
-        }
-        return(fallback_uri)
-      }
-
-      composite_svg <- paste0(
-        "<svg xmlns='http://www.w3.org/2000/svg' ",
-        "xmlns:xlink='http://www.w3.org/1999/xlink' width='24' height='24' viewBox='0 0 24 24'>",
-        "<image href='", rarity_uri, "' xlink:href='", rarity_uri,
-        "' width='24' height='24' preserveAspectRatio='xMidYMid meet'/>",
-        "<image href='", order_uri, "' xlink:href='", order_uri,
-        "' x='4' y='3' width='16' height='16' preserveAspectRatio='xMidYMid meet'/>",
-        "</svg>"
-      )
-
-      base64enc::dataURI(
-        data = charToRaw(composite_svg),
-        mime = "image/svg+xml"
-      )
+  # Build paths to pre-generated overlay icons
+  overlay_paths <- mapply(
+    FUN = function(order, rarity) {
+      # Construct the web path to the pre-generated icon
+      # Format: bird-data/Markers_new/{order}_{rarity}.svg
+      paste0("bird-data/Markers_new/", order, "_", rarity, ".svg")
     },
-    order_path = order_paths,
-    rarity_path = rarity_paths,
+    order = clean_orders,
+    rarity = clean_rarities,
     SIMPLIFY = TRUE,
     USE.NAMES = FALSE
   )
 
+  # Convert to data URIs
+  overlay_uris <- vapply(
+    overlay_paths,
+    FUN = function(path) {
+      uri <- get_svg_data_uri(path)
+
+      # Fallback to generic marker if pre-generated icon not found
+      if (is.null(uri)) {
+        uri <- get_svg_data_uri("assets/marker.svg")
+      }
+      if (is.null(uri)) {
+        return("")
+      }
+      return(uri)
+    },
+    FUN.VALUE = character(1),
+    USE.NAMES = FALSE
+  )
+
   icons(
-    iconUrl = composite_uris,
+    iconUrl = overlay_uris,
     iconWidth = 24,
     iconHeight = 24,
     iconAnchorX = 12,

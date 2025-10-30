@@ -223,32 +223,36 @@ headers <- tags$head(
 
     window.updateTableauScientificName = function(id, scientificName) {
       let attempts = 25;
+      console.log("[updateTableauScientificName] Called for ID:", id, "ScientificName:", scientificName);
       const tick = async () => {
         try {
           const viz = document.getElementById(id);
           if (!viz || !viz.workbook) {
+            console.warn("[updateTableauScientificName] Viz not found or workbook not loaded for ID:", id);
             if (attempts-- > 0) return void setTimeout(tick, 160);
             return;
           }
           const applyTo = async (sheet) => {
             if (!sheet) return;
             if (typeof sheet.applyFilterAsync === "function") {
-              await sheet.applyFilterAsync("ScientificName", [scientificName], "replace");
+              console.log("[updateTableauScientificName] Applying filter to activeSheet", id, scientificName);
+              await sheet.applyFilterAsync("Scientific Name", [scientificName], "replace");
             }
             if (sheet.worksheets && sheet.worksheets.length) {
               for (const ws of sheet.worksheets) {
                 try {
-                  await ws.applyFilterAsync("ScientificName", [scientificName], "replace");
+                  console.log("[updateTableauScientificName] Applying filter to worksheet", ws.name || ws, scientificName);
+                  await ws.applyFilterAsync("Scientific Name", [scientificName], "replace");
                 } catch (e) {
-                  console.log("Could not apply filter to worksheet", e);
+                  console.warn("Could not apply filter to worksheet", ws, e);
                 }
               }
             }
           };
           await applyTo(viz.workbook.activeSheet);
         } catch (e) {
+          console.error("[updateTableauScientificName] Error during filtering:", e);
           if (attempts-- > 0) return void setTimeout(tick, 160);
-          console.error("updateTableauScientificName error", e);
         }
       };
       tick();

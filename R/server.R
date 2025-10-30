@@ -499,7 +499,7 @@ server <- function(input, output, session) {
 
       # Tableau Sightings by Year (interactive)
       tableau_id <- "tableauSightingsByYear"
-      tableau_url <- "https://public.tableau.com/shared/PDNK3TPM3?:display_count=n&:origin=viz_share_link"
+      tableau_url <- "https://public.tableau.com/views/BirdSightings/Sightingsbyyear?:language=en-US&publish=yes&:sid=&:redirect=auth&:display_count=n&:origin=viz_share_link"
 
       modal_children <- c(
         modal_children,
@@ -520,8 +520,10 @@ server <- function(input, output, session) {
       )
 
       # Tableau Choropleth Map (interactive)
-      tableau_choropleth_id <- paste0("tableauChoropleth_", gsub("[^A-Za-z0-9]", "", selected_bird$scientificName))
-      tableau_choropleth_url <- "https://public.tableau.com/views/Choropleth_birds/choropleth_birds?:language=en-US&:sid=&:redirect=auth&:display_count=n&:origin=viz_share_link"
+      # Use a constant ID so Shiny input bindings like
+      # input$tableauChoropleth_mark_selection_changed remain consistent
+      tableau_choropleth_id <- "tableauChoropleth"
+      tableau_choropleth_url <- "https://public.tableau.com/shared/6DMRM4S73?:display_count=n&:origin=viz_share_link"
 
       modal_children <- c(
         modal_children,

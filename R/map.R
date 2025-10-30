@@ -208,7 +208,7 @@ map_renderer <- function(map_data, state) {
 
   # Mapbox template location
   mapbox_template <- paste0(
-    "https://api.mapbox.com/styles/v1/mapbox/outdoors-v12",
+    "https://api.mapbox.com/styles/v1/mapbox/light-v11",
     "/tiles/{z}/{x}/{y}",
     "?access_token=",
     "pk.eyJ1IjoiaGs3NDAyIiwiYSI6ImNtaGJkM3BxdTB3bGQyaXB5czY2ZW1zMG0ifQ",

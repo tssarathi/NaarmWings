@@ -27,7 +27,8 @@ We gratefully acknowledge **BirdLife Australia** and the **Atlas of Living Austr
 > Morphological trait data derived from the AVONET global bird dataset and merged with species occurrence records using the scientific name field accessed on 22 October 2025.
 > Spatial boundary and locality shapefiles obtained from the City of Melbourne Open Data Portal and Geoscape Administrative Boundaries accessed on 25 October 2025.
 
-**DOIs:**  
+**DOIs:**
+
 - Atlas of Living Australia: [https://doi.org/10.26197/ala.aaf6d193-fcff-4c92-9f10-607c1fbda846](https://doi.org/10.26197/ala.aaf6d193-fcff-4c92-9f10-607c1fbda846)
 
 **Data sources:**
@@ -60,8 +61,6 @@ We gratefully acknowledge **BirdLife Australia** and the **Atlas of Living Austr
   Global Biodiversity Information Facility (GBIF) DOI: [https://doi.org/10.15468/qv0ksn](https://doi.org/10.15468/qv0ksn).  
   Licensed under **CC BY-NC-ND 4.0** and **CC BY-NC-SA 4.0**.  
   Terms of Use: [https://xeno-canto.org/about/terms](https://xeno-canto.org/about/terms)
-
-
 
 ## Third-Party Libraries
 

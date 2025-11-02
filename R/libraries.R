@@ -1,21 +1,16 @@
-################################################################################
-# Libraries required for the app                                               #
-################################################################################
-
-#' Dependencies used in the app
 dependencies <- c(
   "shiny",
+  "shinyjs",
   "dplyr",
   "readr",
   "leaflet",
   "htmltools",
   "glue",
   "lubridate", # For date handling and year extraction
-  "jsonlite" # For parsing audio credits JSON
+  "jsonlite", # For parsing audio credits JSON
+  "rlang"
 )
 
-#' Attempts to load packages and install them if required
-#' @param dependencies - a vector of dependency names
 load_dependencies <- function(dependencies) {
   print("Loading dependencies...")
   for (package in dependencies) {

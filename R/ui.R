@@ -1,12 +1,9 @@
-################################################################################
-# UI components for the dashboard                                              #
-################################################################################
 library(shiny)
 library(leaflet)
 library(glue)
 library(htmltools)
 
-# Headers----------------------------------------------------------------------
+# Headers
 
 headers <- tags$head(
   # favicon
@@ -36,6 +33,7 @@ headers <- tags$head(
   tags$script(
     src = "https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"
   ),
+  # nolint start: line_length_linter
   tags$script(HTML("
     mermaid.initialize({
       startOnLoad: false,
@@ -184,11 +182,13 @@ headers <- tags$head(
     })();
   ")),
   # javascript
+  # nolint end
   tags$script(
     src = "assets/shiny_app.js"
   )
   ,
   # helper to update Tableau viz year filter from Shiny
+  # nolint start: line_length_linter
   tags$script(HTML('
     window.updateTableauYearRange = function(id, minYear, maxYear) {
       let attempts = 25;
@@ -258,9 +258,10 @@ headers <- tags$head(
       tick();
     };
   '))
+  # nolint end
 )
 
-# Filter Panel-----------------------------------------------------------------
+# Filter panel
 
 filter_panel <- tabPanel(
   title = "Filters",
@@ -374,13 +375,13 @@ filter_panel <- tabPanel(
   tags$div(class = "spacer h32")
 )
 
-# Dimmer Panel-----------------------------------------------------------------
+# Dimmer panel
 
 dimmer_panel <- tabPanel(
   title = "Dimmer"
 )
 
-# Map Panel---------------------------------------------------------------------
+# Map panel
 
 map_panel <- tabPanel(
   title = "Map",
@@ -391,14 +392,14 @@ map_panel <- tabPanel(
   )
 )
 
-# Search Panel-----------------------------------------------------------------
+# Search panel
 
 search_panel <- tabPanel(
   title = "Search",
   fluidRow(
     class = "logo",
     tags$img(
-      src = "assets/logo.svg"
+      src = "assets/naarmwings-logo.svg"
     )
   ),
   fluidRow(
@@ -427,7 +428,7 @@ search_results_panel <- tabPanel(
   title = "SearchResults"
 )
 
-# Intro panel------------------------------------------------------------------
+# Intro panel
 
 intro_panel <- tabPanel(
   title = "Intro",
@@ -446,14 +447,20 @@ intro_panel <- tabPanel(
       class = "page",
       tags$img(src = "assets/slide2.svg"),
       tags$p(
-        "Find species near your location, filter by time period, rarity, and more."
+        paste(
+          "Find species near your location, filter by time period,",
+          "rarity, and more."
+        )
       )
     ),
     tags$div(
       class = "page",
       tags$img(src = "assets/slide3.svg"),
       tags$p(
-        "Discover the rich avian biodiversity of Melbourne with interactive maps and sounds."
+        paste(
+          "Discover the rich avian biodiversity of Melbourne",
+          "with interactive maps and sounds."
+        )
       )
     )
   ),
@@ -477,7 +484,7 @@ intro_panel <- tabPanel(
   )
 )
 
-# Loading panel----------------------------------------------------------------
+# Loading panel
 
 loading_panel <- tabPanel(
   title = "Loading",
@@ -487,7 +494,7 @@ loading_panel <- tabPanel(
   )
 )
 
-# UI element-------------------------------------------------------------------
+# UI layout
 
 ui <- tagList(
   headers,

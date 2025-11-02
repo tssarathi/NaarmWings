@@ -98,43 +98,42 @@ compose_marker_icons <- function(orders, rarities) {
     return(icons(iconUrl = character(0)))
   }
 
-  clean_orders <- ifelse(is.na(orders), "default", orders)
-  clean_rarities <- ifelse(is.na(rarities), "default", rarities)
+  clean_orders <- ifelse(is.na(orders) | orders == "", "default", orders)
+  clean_rarities <- ifelse(is.na(rarities) | rarities == "", "default", rarities)
 
-  # Build paths to pre-generated overlay icons
-  overlay_paths <- mapply(
-    FUN = function(order, rarity) {
-      # Construct the web path to the pre-generated icon
-      # Format: bird-data/Markers_new/{order}_{rarity}.svg
-      paste0("bird-data/Markers_new/", order, "_", rarity, ".svg")
-    },
-    order = clean_orders,
-    rarity = clean_rarities,
-    SIMPLIFY = TRUE,
-    USE.NAMES = FALSE
-  )
+  normalise_web_path <- function(path) {
+    # Replace spaces to keep URLs safe while preserving directory separators
+    gsub(" ", "%20", path, fixed = TRUE)
+  }
 
-  # Convert to data URIs
-  overlay_uris <- vapply(
-    overlay_paths,
-    FUN = function(path) {
-      uri <- get_svg_data_uri(path)
+  marker_urls <- vapply(
+    seq_along(clean_orders),
+    FUN = function(idx) {
+      order <- clean_orders[[idx]]
+      rarity <- clean_rarities[[idx]]
 
-      # Fallback to generic marker if pre-generated icon not found
-      if (is.null(uri)) {
-        uri <- get_svg_data_uri("assets/marker.svg")
+      candidate_path <- paste0("bird-data/Markers_new/", order, "_", rarity, ".svg")
+      candidate_file <- resolve_asset_path(candidate_path)
+
+      if (file.exists(candidate_file)) {
+        return(normalise_web_path(candidate_path))
       }
-      if (is.null(uri)) {
-        return("")
+
+      fallback_path <- "assets/marker.svg"
+      fallback_file <- resolve_asset_path(fallback_path)
+
+      if (file.exists(fallback_file)) {
+        return(normalise_web_path(fallback_path))
       }
-      return(uri)
+
+      ""
     },
     FUN.VALUE = character(1),
     USE.NAMES = FALSE
   )
 
   icons(
-    iconUrl = overlay_uris,
+    iconUrl = marker_urls,
     iconWidth = 24,
     iconHeight = 24,
     iconAnchorX = 12,

@@ -55,6 +55,15 @@ We gratefully acknowledge **BirdLife Australia** and the **Atlas of Living Austr
   Accessed from [https://figshare.com/s/b990722d72a26b5bfead](https://figshare.com/s/b990722d72a26b5bfead) on 20 October 2025.  
   Merged with pre-processed occurrence data using the scientific name field.
 
+- **Xeno-Canto Foundation.** *Xeno-Canto — Bird sounds from around the world* [Dataset].  
+  Accessed via the Xeno-Canto API on 20 October 2025 for academic, non-commercial use.  
+  Includes bird call recordings displayed with per-track attribution.  
+  Global Biodiversity Information Facility (GBIF) DOI: [https://doi.org/10.15468/qv0ksn](https://doi.org/10.15468/qv0ksn).  
+  Licensed under **CC BY-NC-ND 4.0** and **CC BY-NC-SA 4.0**.  
+  Terms of Use: [https://xeno-canto.org/about/terms](https://xeno-canto.org/about/terms)
+
+  
+
 ### Limitations & Future Work
 
 - Audio data was not available for **8 bird species**, resulting in missing playback functionality for those entries.  

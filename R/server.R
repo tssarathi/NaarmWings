@@ -570,6 +570,15 @@ server <- function(input, output, session) {
         ))
       }, silent = TRUE)
 
+      # Apply scientific name filter to the Sightings by Year chart
+      try({
+        shinyjs::runjs(sprintf(
+          'setTimeout(() => window.updateTableauScientificName("%s", "%s"), 400);',
+          tableau_id,
+          selected_bird$scientificName
+        ))
+      }, silent = TRUE)
+
       # Set up event listeners for the choropleth viz (dynamically added to modal)
       try({
         shinyjs::runjs(sprintf(

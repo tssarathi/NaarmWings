@@ -2,8 +2,6 @@ library(dplyr)
 library(leaflet)
 library(htmltools)
 
-# Map helpers
-
 map_symbol <- function(order = "default") {
   if (order == "location") {
     return("assets/location.svg")

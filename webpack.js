@@ -60,17 +60,13 @@ module.exports = {
     ]
   },
   plugins: [
-    // delete existing packed assets
     new CleanWebpackPlugin({
       cleanOnceBeforeBuildPatterns: ["./www"]
     }),
-    // minify CSS
     new MiniCssExtractPlugin(),
-    // static copy of files
     new CopyPlugin({
       patterns: copyFiles
     }),
-    // clean up
     new RemoveEmptyScriptsPlugin(),
   ]
 };

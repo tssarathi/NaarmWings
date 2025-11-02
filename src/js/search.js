@@ -7,10 +7,8 @@ const search_osm = async (query) => {
     return [];
   }
 
-  // The URL endpoint
   const url = new URL("https://nominatim.openstreetmap.org/search");
-  
-  // Append params to the url
+
   const params = {
     "format": "json",
     "countrycodes": "au",
@@ -47,14 +45,11 @@ const render_search_results = (json) => {
   res_panel.innerHTML = "";
   const results = Array.isArray(json) ? json : [];
   const res_elements = results.map((result) => {
-    // Wrapper
     const wrapper = document.createElement("div");
     wrapper.classList.add("result-wrapper");
-    
-    // Wrangle the display_name
+
     const display_names = osm_display_name(result);
-    
-    // Bind click event to wrapper
+
     wrapper.addEventListener("click", () => {
       const input = get_search_input();
       if (!input) {
@@ -70,23 +65,20 @@ const render_search_results = (json) => {
       input.dispatchEvent(
         new CustomEvent("set:loc", {"detail": result})
       );
-      
+
       const res_panel_click = document.querySelector("[data-value='SearchResults'].tab-pane");
       res_panel_click && res_panel_click.dispatchEvent(
         new CustomEvent("close:panel", {"detail": result})
       );
-      
-      // Sets the search input box to display the selected name
+
       input.value = display_names[0] || "Unknown name";
-      
-      // Close the panel
+
       close_search_results();
-      
+
       // Clean up any other indicators
       remove_gps_indicator();
     });
-    
-    // Create internal elements
+
     const name = document.createElement("div");
     name.classList.add("result-name");
     name.innerHTML = display_names[0] || "Unknown name";
@@ -101,15 +93,13 @@ const render_search_results = (json) => {
     
     return wrapper;
   })
-  
-  // Check that there are elements in res_elements, if not, add a message
+
   if (res_elements.length < 1) {
     search_res_alert("No results found, please try again.");
   }
-  
-  // Add elements to the res_panel
+
   res_panel.append(... res_elements);
-  
+
   // Open the panel after results have been rendered
   open_search_results();
 }
@@ -120,14 +110,12 @@ const search_res_alert = (message, open_panel = false) => {
     return;
   }
 
-  // Reset panel contents and add the message
   res_panel.innerHTML = "";
   const msg = document.createElement("div");
   msg.classList.add("result-none");
   msg.innerHTML = message;
   res_panel.append(msg);
-  
-  // Open the panel if required
+
   open_panel && open_search_results();
 }
 
@@ -162,7 +150,6 @@ const close_search_results = () => {
 }
 
 const search_panel_go = async () => {
-  // Get the search query from the search input box
   const input = get_search_input();
   if (!input) {
     return;
@@ -174,20 +161,16 @@ const search_panel_go = async () => {
     search_res_alert("Please enter a location.", true);
     return;
   }
-  
-  // Query the API
+
   const results = await search_osm(trimmed_query);
-  
-  // Render the search results
+
   render_search_results(results);
 }
 
 const on_search_go = () => {
-  // Apply styling changes
   const panel = document.querySelector("[data-value='Search'].tab-pane");
   panel && panel.classList.add("busy");
-  
-  // Dispatch event
+
   const input = get_search_input();
   input && input.dispatchEvent(
     new CustomEvent("search:busy")
@@ -195,11 +178,9 @@ const on_search_go = () => {
 }
 
 const on_search_done = () => {
-  // Apply styling changes
   const panel = document.querySelector("[data-value='Search'].tab-pane");
   panel && panel.classList.remove("busy");
-  
-  // Dispatch event
+
   const input = get_search_input();
   input && input.dispatchEvent(
     new CustomEvent("search:done")
@@ -208,7 +189,6 @@ const on_search_done = () => {
 
 const use_geolocation = () => {
   const on_success = (location) => {
-    //location.coords.[latitude, longitude]
     const {coords: {
       latitude:lat, longitude:lon
     }} = location;
@@ -221,9 +201,8 @@ const use_geolocation = () => {
     search_res_alert("Current GPS location set.", true);
     set_gps_indicator();
   }
-  
+
   const on_failure = (reason) => {
-    //reason.message
     let message = "Unable to access current location.";
     if (reason) {
       switch (reason.code) {
@@ -242,8 +221,7 @@ const use_geolocation = () => {
     }
     search_res_alert(message, true);
   }
-  
-  // Query the navigator geolocation service
+
   navigator.geolocation &&
   navigator.geolocation.getCurrentPosition(on_success, on_failure);
 }
@@ -265,7 +243,6 @@ const bind_search_events = () => {
     return;
   }
 
-  // On results selection
   input.addEventListener("set:loc", (event) => {
     const { detail: data } = event || {};
     if (!data || data.lat == null || data.lon == null) {

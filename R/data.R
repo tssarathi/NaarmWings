@@ -19,7 +19,6 @@ haversine_km <- function(lat, lon, center_lat, center_lon) {
     return(numeric(0))
   }
 
-  # Convert degrees to radians
   rad <- pi / 180
   lat_rad <- lat * rad
   lon_rad <- lon * rad
@@ -138,31 +137,26 @@ filter_bird_data <- function(
 ) {
   filtered <- data
 
-  # Filter by species if provided
   if (!is.null(species) && length(species) > 0) {
     filtered <- filtered %>%
       filter(.data$commonName %in% species)
   }
 
-  # Filter by order if provided
   if (!is.null(order) && length(order) > 0) {
     filtered <- filtered %>%
       filter(.data$order %in% order)
   }
 
-  # Filter by rarity if provided
   if (!is.null(rarity_filters) && length(rarity_filters) > 0) {
     filtered <- filtered %>%
       filter(.data$rarityCategory %in% rarity_filters)
   }
 
-  # Filter by year range if provided
   if (!is.null(year_range)) {
     filtered <- filtered %>%
       filter(.data$year >= year_range[1] & .data$year <= year_range[2])
   }
 
-  # Filter by distance if both radius and center location provided
   if (!is.null(radius_range) && !is.null(center_location)) {
     center_lat <- center_location[1]
     center_lon <- center_location[2]

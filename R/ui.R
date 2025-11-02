@@ -2,16 +2,12 @@ library(shiny)
 library(leaflet)
 library(htmltools)
 
-# Headers
-
 headers <- tags$head(
-  # favicon
   tags$link(
     rel = "icon",
     type = "image/x-icon",
     href = "assets/naarmwings-logo.svg"
   ),
-  # web fonts
   tags$link(
     rel = "stylesheet",
     type = "text/css",
@@ -22,7 +18,6 @@ headers <- tags$head(
     type = "text/css",
     href = "https://fonts.googleapis.com/icon?family=Material+Icons"
   ),
-  # css overrides
   tags$link(
     rel = "stylesheet",
     type = "text/css",
@@ -184,7 +179,6 @@ headers <- tags$head(
     })();
   "
   )),
-  # javascript
   # nolint end
   tags$script(
     src = "assets/shiny_app.js"
@@ -258,8 +252,6 @@ headers <- tags$head(
   ))
   # nolint end
 )
-
-# Filter panel
 
 filter_panel <- tabPanel(
   title = "Filters",
@@ -379,8 +371,6 @@ dimmer_panel <- tabPanel(
   title = "Dimmer"
 )
 
-# Map panel
-
 map_panel <- tabPanel(
   title = "Map",
   leafletOutput(
@@ -389,8 +379,6 @@ map_panel <- tabPanel(
     width = "100%"
   )
 )
-
-# Search panel
 
 search_panel <- tabPanel(
   title = "Search",
@@ -425,8 +413,6 @@ search_panel <- tabPanel(
 search_results_panel <- tabPanel(
   title = "SearchResults"
 )
-
-# Intro panel
 
 intro_panel <- tabPanel(
   title = "Intro",
@@ -482,8 +468,6 @@ intro_panel <- tabPanel(
   )
 )
 
-# Loading panel
-
 loading_panel <- tabPanel(
   title = "Loading",
   class = "container",
@@ -491,8 +475,6 @@ loading_panel <- tabPanel(
     class = "pulse"
   )
 )
-
-# UI layout
 
 ui <- tagList(
   headers,

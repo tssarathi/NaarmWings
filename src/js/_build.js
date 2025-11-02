@@ -11,7 +11,6 @@ import { bind_intro_actions, on_first_run } from "./intro.js";
     window.search = search_osm
   }
 
-  // When shiny has loaded
   $(document).on("shiny:sessioninitialized", (event) => {
     on_first_run();
     bind_button_actions();

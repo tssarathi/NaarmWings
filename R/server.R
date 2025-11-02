@@ -37,8 +37,6 @@ utils::globalVariables(c(
   "filter_bird_data"
 ))
 
-# Helper utilities
-
 run_delayed_js <- function(delay_ms, call_expr) {
   shinyjs::runjs(
     sprintf("setTimeout(() => %s, %d);", call_expr, delay_ms)
@@ -47,11 +45,8 @@ run_delayed_js <- function(delay_ms, call_expr) {
 
 
 server <- function(input, output, session) {
-  # State
-
   state <- reactiveValues()
 
-  # Theme colours
   state$ui_colors <- list(
     "background" = "#FFFFFF",
     "lightgray" = "#E9E9EA",
@@ -88,8 +83,6 @@ server <- function(input, output, session) {
 
   state$filter_radius <- c(0, 8)
 
-  # Event handlers
-
   observeEvent(input$js_set_loc, {
     lat <- as.numeric(input$js_set_loc$lat)
     lon <- as.numeric(input$js_set_loc$lon)
@@ -98,7 +91,6 @@ server <- function(input, output, session) {
     state$zoom_level <- 14
   })
 
-  # Filter by species
   observeEvent(
     input$filter_species,
     {
@@ -111,7 +103,6 @@ server <- function(input, output, session) {
     ignoreNULL = FALSE
   )
 
-  # Filter by order
   observeEvent(
     input$filter_order,
     {
@@ -124,7 +115,6 @@ server <- function(input, output, session) {
     ignoreNULL = FALSE
   )
 
-  # Filter by rarity checkboxes
   observe({
     rarity_categories <- c()
     if (isTRUE(input$filter_common)) {
@@ -145,7 +135,6 @@ server <- function(input, output, session) {
     state$filter_rarity <- rarity_categories
   })
 
-  # Filter by year range
   observeEvent(input$filter_year_range, {
     state$filter_year_range <- input$filter_year_range
     # keep Tableau viz (if present) synced with year range
@@ -159,14 +148,10 @@ server <- function(input, output, session) {
     )
   })
 
-  # Filter by radius
   observeEvent(input$filter_radius, {
     state$filter_radius <- c(0, input$filter_radius)
   })
 
-  # Master data
-
-  # Load the bird sighting data
   bird_data <- load_bird_data() # nolint: object_usage_linter
   full_year_range <- c(1998, 2019)
   state$filter_year_range <- full_year_range
@@ -248,7 +233,6 @@ server <- function(input, output, session) {
     ignoreNULL = FALSE
   )
 
-  # Update filter controls with actual data
   observe({
     updateSliderInput(
       session,
@@ -280,8 +264,6 @@ server <- function(input, output, session) {
     )
   })
 
-  # Mapping
-
   output$leaflet_map <- renderLeaflet({
     map_renderer(filtered_data(), state) # nolint: object_usage_linter
   })
@@ -290,7 +272,6 @@ server <- function(input, output, session) {
     data <- filtered_data()
 
     if (nrow(data) == 0) {
-      # Create location marker icon
       location_icon <- icons(
         iconUrl = map_symbol("location"), # nolint: object_usage_linter
         iconWidth = 24,
@@ -361,7 +342,6 @@ server <- function(input, output, session) {
 
     req(nrow(selected_bird) > 0)
 
-    # Resolve media paths
     image_src <- selected_bird$image_src[[1]]
     audio_file <- selected_bird$audio_file[[1]]
     audio_src <- selected_bird$audio_src[[1]]

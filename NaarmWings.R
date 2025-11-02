@@ -1,10 +1,8 @@
 # Main App File
 # Sources all modules and runs the Shiny app
 
-# Load dependencies first
 source("R/libraries.R")
 
-# Source all module files
 source("R/tableau-in-shiny-v1.2.R")
 source("R/data.R")
 source("R/map.R")
@@ -17,7 +15,6 @@ shiny::addResourcePath("assets", "www")
 # Expose Data directory for images/audio in modals
 shiny::addResourcePath("bird-data", "Data")
 
-# Run the app
 app <- shinyApp(ui = ui, server = server)
 
 # Launch in external browser

@@ -1,9 +1,7 @@
 const slider_context_labels = () => {
-  // Find the radius slider specifically by its parent container
   const radiusSlider = document.querySelector('#filter_radius');
   if (!radiusSlider) return;
 
-  // Only format labels within the radius slider
   const radiusContainer = radiusSlider.closest('.shiny-input-container');
   if (!radiusContainer) return;
 

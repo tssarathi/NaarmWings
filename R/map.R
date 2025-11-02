@@ -112,16 +112,13 @@ get_radar_info <- function(radius_range) {
 }
 
 map_renderer <- function(map_data, state) {
-  # Unpack state parameters
   center_lat <- state$center_lat
   center_lng <- state$center_lng
   zoom_level <- state$zoom_level
   radius_range <- state$filter_radius
 
-  # Get radar info
   radar_info <- get_radar_info(radius_range)
 
-  # Mapbox template location
   mapbox_template <- paste0(
     "https://api.mapbox.com/styles/v1/mapbox/light-v11",
     "/tiles/{z}/{x}/{y}",
@@ -130,7 +127,6 @@ map_renderer <- function(map_data, state) {
     ".yD4Rsrn1vPqxXk2AFgjOZA"
   )
 
-  # Get icon paths for each bird based on taxonomic order
   marker_orders <- map_data$order
   marker_rarities <- map_data$rarityCategory
   marker_icons <- compose_marker_icons(marker_orders, marker_rarities)

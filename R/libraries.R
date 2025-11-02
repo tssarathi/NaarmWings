@@ -26,5 +26,4 @@ load_dependencies <- function(dependencies) {
   }
 }
 
-# Load dependencies
 load_dependencies(dependencies)

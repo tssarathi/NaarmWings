@@ -42,7 +42,6 @@ haversine_km <- function(lat, lon, center_lat, center_lon) {
 }
 
 load_bird_data <- function(filename = "Data/Pre - Processed Data/data.csv") {
-  # Read the CSV file
   df <- readr::read_csv(
     filename,
     col_types = cols(
@@ -192,16 +191,11 @@ filter_bird_data <- function(
     filtered <- filtered %>%
       arrange(.data$scientificName, desc(.data$date), desc(.data$count))
 
-    # Track which rows to keep
     keep_rows <- rep(TRUE, nrow(filtered))
 
-    # For each bird, check if there are duplicate species nearby
     for (i in seq_len(nrow(filtered))) {
-      if (!keep_rows[i]) {
-        next
-      } # Already marked as duplicate
+      if (!keep_rows[i]) next
 
-      # Find later observations of the same species
       same_species_later <- which(
         filtered$scientificName == filtered$scientificName[i] &
           keep_rows &
@@ -209,7 +203,6 @@ filter_bird_data <- function(
       )
 
       if (length(same_species_later) > 0) {
-        # Calculate distances to other same-species observations
         distances <- haversine_km(
           lat = filtered$latitude[same_species_later],
           lon = filtered$longitude[same_species_later],
@@ -225,7 +218,6 @@ filter_bird_data <- function(
       }
     }
 
-    # Keep only non-duplicate observations
     filtered <- filtered[keep_rows, ]
   }
 

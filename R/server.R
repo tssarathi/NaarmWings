@@ -99,22 +99,30 @@ server <- function(input, output, session) {
   })
 
   # Filter by species
-  observeEvent(input$filter_species, {
-    state$filter_species <- if (is.null(input$filter_species)) {
-      character(0)
-    } else {
-      input$filter_species
-    }
-  }, ignoreNULL = FALSE)
+  observeEvent(
+    input$filter_species,
+    {
+      state$filter_species <- if (is.null(input$filter_species)) {
+        character(0)
+      } else {
+        input$filter_species
+      }
+    },
+    ignoreNULL = FALSE
+  )
 
   # Filter by order
-  observeEvent(input$filter_order, {
-    state$filter_order <- if (is.null(input$filter_order)) {
-      character(0)
-    } else {
-      input$filter_order
-    }
-  }, ignoreNULL = FALSE)
+  observeEvent(
+    input$filter_order,
+    {
+      state$filter_order <- if (is.null(input$filter_order)) {
+        character(0)
+      } else {
+        input$filter_order
+      }
+    },
+    ignoreNULL = FALSE
+  )
 
   # Filter by rarity checkboxes
   observe({
@@ -195,42 +203,50 @@ server <- function(input, output, session) {
       pull(.data$order)
   })
 
-  observeEvent(available_species(), {
-    choices <- available_species()
-    current_selection <- isolate(state$filter_species)
-    valid_selection <- intersect(current_selection, choices)
+  observeEvent(
+    available_species(),
+    {
+      choices <- available_species()
+      current_selection <- isolate(state$filter_species)
+      valid_selection <- intersect(current_selection, choices)
 
-    if (!identical(current_selection, valid_selection)) {
-      state$filter_species <- valid_selection
-    }
-
-    updateSelectInput(
-      session,
-      "filter_species",
-      choices = choices,
-      selected = if (length(valid_selection) == 0) NULL else valid_selection
-    )
-  }, ignoreNULL = FALSE)
-
-  observeEvent(available_orders(), {
-    choices <- available_orders()
-    current_selection <- isolate(state$filter_order)
-    valid_selection <- intersect(current_selection, choices)
-
-    # Only update order filter when species are selected to retain choices
-    if (length(isolate(state$filter_species)) > 0) {
       if (!identical(current_selection, valid_selection)) {
-        state$filter_order <- valid_selection
+        state$filter_species <- valid_selection
       }
-    }
 
-    updateSelectInput(
-      session,
-      "filter_order",
-      choices = choices,
-      selected = if (length(valid_selection) == 0) NULL else valid_selection
-    )
-  }, ignoreNULL = FALSE)
+      updateSelectInput(
+        session,
+        "filter_species",
+        choices = choices,
+        selected = if (length(valid_selection) == 0) NULL else valid_selection
+      )
+    },
+    ignoreNULL = FALSE
+  )
+
+  observeEvent(
+    available_orders(),
+    {
+      choices <- available_orders()
+      current_selection <- isolate(state$filter_order)
+      valid_selection <- intersect(current_selection, choices)
+
+      # Only update order filter when species are selected to retain choices
+      if (length(isolate(state$filter_species)) > 0) {
+        if (!identical(current_selection, valid_selection)) {
+          state$filter_order <- valid_selection
+        }
+      }
+
+      updateSelectInput(
+        session,
+        "filter_order",
+        choices = choices,
+        selected = if (length(valid_selection) == 0) NULL else valid_selection
+      )
+    },
+    ignoreNULL = FALSE
+  )
 
   # Update filter controls with actual data
   observe({
@@ -313,7 +329,8 @@ server <- function(input, output, session) {
       clearMarkerClusters() %>%
       # Bird Sighting Markers
       leaflet::addMarkers(
-        ~ longitude, ~ latitude,
+        ~longitude,
+        ~latitude,
         icon = marker_icons,
         layerId = ~marker_id,
         clusterOptions = leaflet::markerClusterOptions(
@@ -489,7 +506,9 @@ server <- function(input, output, session) {
                 target = "_blank",
                 "Recording"
               ),
-              " by ", info$recorder, " | ",
+              " by ",
+              info$recorder,
+              " | ",
               tags$a(
                 href = info$license_url,
                 target = "_blank",
@@ -638,7 +657,8 @@ server <- function(input, output, session) {
     selected_df <- as.data.frame(selected_data, stringsAsFactors = FALSE)
     req(nrow(selected_df) > 0)
 
-    suburb_lat <- suppressWarnings( # nolint: object_usage_linter
+    suburb_lat <- suppressWarnings(
+      # nolint: object_usage_linter
       as.numeric(selected_df[["ATTR(Centroid Latitude)"]][1])
     )
     suburb_lon <- suppressWarnings(

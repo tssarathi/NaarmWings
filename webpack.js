@@ -1,3 +1,6 @@
+// Build configuration using Webpack 5
+// https://webpack.js.org/
+
 "use strict";
 const webpack = require("webpack");
 const path = require("path");

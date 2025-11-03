@@ -7,6 +7,9 @@ const search_osm = async (query) => {
     return [];
   }
 
+  // Geocoding powered by Nominatim API (OpenStreetMap)
+  // https://nominatim.openstreetmap.org/
+  // Usage Policy: https://operations.osmfoundation.org/policies/nominatim/
   const url = new URL("https://nominatim.openstreetmap.org/search");
 
   const params = {

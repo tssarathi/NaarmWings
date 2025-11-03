@@ -116,6 +116,10 @@ map_renderer <- function(map_data, state) {
 
   radar_info <- get_radar_info(radius_range)
 
+  # Map tiles by Mapbox
+  # https://www.mapbox.com/
+  # Map data © OpenStreetMap contributors
+  # https://www.openstreetmap.org/copyright
   mapbox_template <- paste0(
     "https://api.mapbox.com/styles/v1/mapbox/light-v11",
     "/tiles/{z}/{x}/{y}",
@@ -148,6 +152,8 @@ map_renderer <- function(map_data, state) {
       )
     ) %>%
     setView(lng = center_lng, lat = center_lat, zoom = zoom_level) %>%
+    # Marker clustering provided by Leaflet.markercluster plugin
+    # https://github.com/Leaflet/Leaflet.markercluster
     leaflet::addMarkers(
       ~longitude,
       ~latitude,

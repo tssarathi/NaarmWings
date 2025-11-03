@@ -2,6 +2,13 @@ library(shiny)
 library(leaflet)
 library(htmltools)
 
+# Custom JavaScript and CSS styling adapted from the work of 
+# Johnson Zhou's Parkit App.
+# Original implementation reference:
+#  https://github.com/johnsonjzhou/geom90007-a3
+# Styles were modified and extended to fit the current 
+# project's theme and UI structure.
+
 headers <- tags$head(
   tags$link(
     rel = "icon",
@@ -23,7 +30,13 @@ headers <- tags$head(
     type = "text/css",
     href = "assets/shiny_app.css"
   ),
+
   # mermaid.js for taxonomy diagrams
+  # Core diagram rendering powered by Mermaid.js:
+  # Knut Sveidqvist et al. (2014–2024)
+  # Mermaid – Generation of diagrams and flowcharts from text in  
+  # a similar manner as markdown.
+  # https://mermaid.js.org/
   tags$script(
     src = "https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"
   ),
@@ -70,6 +83,8 @@ headers <- tags$head(
             pendingDefinitions[targetId] = definitionOverride;
           }
 
+          // Retry pattern to wait for DOM element and library loading
+          // https://stackoverflow.com/questions/5525071/how-to-wait-until-an-element-exists
           var attempts = 20;
 
           function tryRender() {
@@ -143,6 +158,8 @@ headers <- tags$head(
             });
           }
 
+          // requestAnimationFrame polyfill with 16ms fallback (60fps)
+          // https://stackoverflow.com/questions/5605588/how-to-use-requestanimationframe
           var raf = window.requestAnimationFrame || function(cb) { return window.setTimeout(cb, 16); };
           raf(tryRender);
         }

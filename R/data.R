@@ -14,6 +14,10 @@ utils::globalVariables(c(
   "marker_id"
 ))
 
+# Haversine distance function (vectorised)
+# Inspired by: https://github.com/johnsonjzhou/geom90007-a3
+# Additional mathematical formulation based on:
+# https://www.movable-type.co.uk/scripts/latlong.html
 haversine_km <- function(lat, lon, center_lat, center_lon) {
   if (length(lat) == 0) {
     return(numeric(0))

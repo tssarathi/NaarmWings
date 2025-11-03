@@ -28,6 +28,8 @@ const deactivate_panel = (panel, apply_dimmer = true) => {
 
   if (apply_dimmer && dimmer) {
     dimmer.classList.remove("dim");
+    // Remove all event listeners by replacing element with clone
+    // https://stackoverflow.com/questions/9251837/how-to-remove-all-listeners-in-an-element
     dimmer.replaceWith(dimmer.cloneNode(true));
   }
 

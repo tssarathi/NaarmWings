@@ -1,6 +1,11 @@
 # Main App File
 # Sources all modules and runs the Shiny app
 
+## The project idea and implementation are original. 
+## Generative AI tools were used only for code review, optimization, 
+## and visual refinement — strictly within the 
+## University’s academic integrity guidelines.
+
 source("R/libraries.R")
 
 source("R/tableau-in-shiny-v1.2.R")

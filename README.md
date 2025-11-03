@@ -114,11 +114,13 @@ shiny::runApp(launch.browser = FALSE)
 
 Directory Tree
 
+```
 root
 ├── Data: data sources for the dashboard
 ├── R: supporting R scripts for the app
 ├── src: supporting non-R source files and assets
 └── www: production non-R files and assets for use by the app
+```
 
 Building supporting (non-R) source files (optional)
 

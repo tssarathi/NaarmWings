@@ -1,6 +1,6 @@
 # Bird Watch Visualization App
 
-![NaarmWings Logo](Data/Logo/NaarmWings%20Logo.svg)
+![NaarmWings Logo](Data/Logo/NaarmWings%20Logo.svg){width="200px"}
 
 ## [Access the Live Shiny App](https://naarm-wings.shinyapps.io/a3-geom90007/)
 

@@ -18,7 +18,7 @@ We used real data from BirdLife Australia to make this visualization.
 
 ## Our Team
 
-- **Sarathi Thirumalai Soundararajan** - [tssarathi5901@gmail.com](mailto:tssarathi5901@gmail.com)
+- **Sarathi T S** - [tssarathi5901@gmail.com](mailto:tssarathi5901@gmail.com)
 - **Eby Thomas** - [thomas.e2@student.unimelb.edu.au](mailto:thomas.e2@student.unimelb.edu.au)
 - **Harish Kannan** - [harish.kannan@student.unimelb.edu.au](mailto:harish.kannan@student.unimelb.edu.au)
 - **Mahek Jain** - [mahek.jain@student.unimelb.edu.au](mailto:mahek.jain@student.unimelb.edu.au)
